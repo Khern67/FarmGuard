@@ -1,0 +1,152 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block auth_content %}
+
+<div class="login-shell">
+
+    <!-- LEFT: WHITE BRANDING SECTION -->
+    <div class="login-visual">
+
+        <a class="brand light" href="#">
+            <img
+                src="{{ url_for('static', filename='images/farmguard-logo.png') }}"
+                alt="FarmGuard Logo"
+                class="auth-logo"
+            >
+        </a>
+
+        <div class="visual-copy">
+
+            <span class="eyebrow">SMARTER FIELD OPERATIONS</span>
+
+            <h1>
+                Healthy crops start with<br>
+                <em>better decisions.</em>
+            </h1>
+
+            <p>
+                One clear view of your farm. A smarter way to monitor
+                crop health and prioritize inspections.
+            </p>
+
+            <div class="visual-stat">
+                <div>
+                    <b>01</b>
+                    <span>Observe</span>
+                </div>
+
+                <div>
+                    <b>02</b>
+                    <span>Classify</span>
+                </div>
+
+                <div>
+                    <b>03</b>
+                    <span>Prioritize</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="visual-foot">
+            CROP HEALTH MONITORING & INSPECTION PRIORITIZATION
+        </div>
+
+    </div>
+
+
+    <!-- RIGHT: GREEN LOGIN SECTION -->
+    <div class="login-panel">
+
+        <div class="login-card">
+
+            <!-- MOBILE LOGO -->
+            <div class="mobile-brand">
+                <img
+                    src="{{ url_for('static', filename='images/farmguard-logo.png') }}"
+                    alt="FarmGuard Logo"
+                    class="mobile-brand-logo"
+                >
+            </div>
+
+            <span class="eyebrow green">WELCOME BACK</span>
+
+            <h2>Sign in to your workspace</h2>
+
+            <p class="muted">
+                Enter your account details to continue.
+            </p>
+
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% for category, message in messages %}
+
+                    <div class="flash {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endwith %}
+
+            <!-- LOGIN FORM -->
+            <form method="post" class="form-stack">
+
+                <label>
+                    Username
+                    <input
+                        name="username"
+                        placeholder="Enter your username"
+                        required
+                        autofocus
+                    >
+                </label>
+
+                <label>
+                    Password
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </label>
+
+                <button class="btn primary full" type="submit">
+                    Sign in <span>→</span>
+                </button>
+
+            </form>
+
+            <!-- DEMO ACCESS -->
+            <div class="demo-box">
+
+                <b>Demo access</b>
+
+                <p>
+                    Owner <code>admin</code> /
+                    <code>farmguard123</code>
+                </p>
+
+                <p>
+                    Worker <code>worker</code> /
+                    <code>worker123</code>
+                </p>
+
+            </div>
+
+            <p class="login-note">
+                FarmGuard prototype · Demo credentials are for local testing only.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

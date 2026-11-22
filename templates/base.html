@@ -1,0 +1,222 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}FarmGuard{% endblock %} · FarmGuard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+{% if active_user %}
+
+<aside class="sidebar">
+
+    <!-- FARMGUARD LOGO -->
+    <a class="brand" href="{{ url_for('dashboard') }}">
+        <img
+            class="brand-logo"
+            src="{{ url_for('static', filename='images/farmguard-logo.png') }}"
+            alt="FarmGuard - Crop Health Monitoring and Inspection Prioritization System"
+        >
+    </a>
+
+    <!-- WORKSPACE -->
+    <div class="workspace">
+        <span class="workspace-dot"></span>
+
+        <span>
+            <b>Farm workspace</b>
+            <small>Crop operations</small>
+        </span>
+
+        <span class="chevron">⌄</span>
+    </div>
+
+    <!-- WORKSPACE NAVIGATION -->
+    <div class="nav-label">WORKSPACE</div>
+
+    <nav>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}"
+           href="{{ url_for('dashboard') }}">
+            <span>▦</span> Overview
+        </a>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'crops_page' else '' }}"
+           href="{{ url_for('crops_page') }}">
+            <span>♧</span> Crop records
+        </a>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'observations' else '' }}"
+           href="{{ url_for('observations') }}">
+            <span>＋</span> New observation
+        </a>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'queue' else '' }}"
+           href="{{ url_for('queue') }}">
+            <span>◷</span> Inspection queue
+        </a>
+
+        <a class="nav-link {{ 'active' if request.endpoint in ['history', 'history_csv'] else '' }}"
+           href="{{ url_for('history') }}">
+            <span>▤</span> Inspection history
+        </a>
+
+    </nav>
+
+    <!-- FARM MANAGEMENT -->
+    <div class="nav-label">FARM MANAGEMENT</div>
+
+    <nav>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'farms_page' else '' }}"
+           href="{{ url_for('farms_page') }}">
+            <span>⌂</span> Farms & sections
+        </a>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'locations' else '' }}"
+           href="{{ url_for('locations') }}">
+            <span>⌖</span> Plot locations
+        </a>
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'guide' else '' }}"
+           href="{{ url_for('guide') }}">
+            <span>ⓘ</span> System guide
+        </a>
+
+        {% if active_user.role == 'Owner' %}
+
+        <a class="nav-link {{ 'active' if request.endpoint == 'users_page' else '' }}"
+           href="{{ url_for('users_page') }}">
+            <span>♙</span> User management
+        </a>
+
+        {% endif %}
+
+    </nav>
+
+    <!-- SIDEBAR BOTTOM -->
+    <div class="sidebar-bottom">
+
+        <div class="help-card">
+            <div class="help-icon">✳</div>
+
+            <b>Need a hand?</b>
+
+            <p>
+                Review how FarmGuard classifies crop observations.
+            </p>
+
+            <a href="{{ url_for('guide') }}">
+                Open user guide →
+            </a>
+        </div>
+
+        <!-- USER PROFILE -->
+        <div class="profile">
+
+            <div class="avatar">
+                {{ active_user.name[:1] | upper }}
+            </div>
+
+            <div class="profile-text">
+                <b>{{ active_user.name }}</b>
+                <small>{{ active_user.role }}</small>
+            </div>
+
+            <a class="logout"
+               href="{{ url_for('logout') }}"
+               title="Sign out">
+                ↗
+            </a>
+
+        </div>
+
+    </div>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+
+        <div class="crumb">
+            Farm workspace
+            <span>/</span>
+            <b>{% block crumb %}Overview{% endblock %}</b>
+        </div>
+
+        <div class="top-actions">
+
+            <span class="status-pill">
+                <i></i> System operational
+            </span>
+
+            <span class="top-date">
+                {{ today }}
+            </span>
+
+            <div class="avatar small">
+                {{ active_user.name[:1] | upper }}
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <section class="content">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                <div class="flash-wrap">
+
+                    {% for category, message in messages %}
+
+                        <div class="flash {{ category }}">
+                            {{ message }}
+
+                            <button onclick="this.parentElement.remove()">
+                                ×
+                            </button>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </section>
+
+</main>
+
+{% else %}
+
+    {% block auth_content %}{% endblock %}
+
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>
