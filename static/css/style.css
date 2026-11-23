@@ -294,3 +294,647 @@
     }
 
 }
+
+/* =========================================
+   FARMGUARD GREEN & WHITE THEME
+   ========================================= */
+
+:root {
+    --green: #176b4b;
+    --green2: #23845e;
+    --ink: #1d2b25;
+    --muted: #687b70;
+    --line: #e1ebe3;
+    --bg: #f1f7f2;
+    --white: #ffffff;
+    --navy: #123d2c;
+}
+
+/* Main page */
+body {
+    background: #f1f7f2;
+    color: #1d2b25;
+    font-size: 15px;
+}
+
+/* Green sidebar */
+.sidebar {
+    background: #176b4b;
+    border-right: 1px solid #12583d;
+}
+
+.brand {
+    color: #ffffff;
+}
+
+.workspace {
+    background: #ffffff12;
+    border-color: #ffffff30;
+}
+
+.workspace b,
+.workspace small,
+.workspace .chevron {
+    color: #ffffff;
+}
+
+.nav-label {
+    color: #c0ddca;
+    font-size: 10px;
+}
+
+.nav-link {
+    color: #e4f1e8;
+    font-size: 13px;
+}
+
+.nav-link span {
+    color: #c0ddca;
+}
+
+.nav-link:hover {
+    background: #ffffff18;
+    color: #ffffff;
+}
+
+.nav-link.active {
+    background: #ffffff;
+    color: #176b4b;
+}
+
+.nav-link.active span {
+    color: #176b4b;
+}
+
+/* Sidebar help and profile */
+.help-card {
+    background: #ffffff;
+    border-color: #dcebe0;
+}
+
+.help-card b {
+    color: #176b4b;
+}
+
+.profile {
+    border-color: #ffffff35;
+}
+
+.profile-text b,
+.profile-text small,
+.logout {
+    color: #ffffff;
+}
+
+/* Main header and content */
+.topbar {
+    background: #ffffff;
+    border-bottom-color: #e1ebe3;
+}
+
+.content {
+    background: #f1f7f2;
+}
+
+/* Cards and panels */
+.metric,
+.panel,
+.farm-card {
+    background: #ffffff;
+    border-color: #e1ebe3;
+    box-shadow: 0 5px 20px rgba(23, 107, 75, 0.06);
+}
+
+.metric-top {
+    font-size: 12px;
+}
+
+.metric > small {
+    font-size: 11px;
+}
+
+.panel-head h3,
+.panel h3 {
+    font-size: 15px;
+}
+
+.panel-head p {
+    font-size: 11px;
+}
+
+/* Buttons */
+.btn {
+    font-size: 12px;
+}
+
+.btn.primary {
+    background: #176b4b;
+}
+
+.btn.primary:hover {
+    background: #10583c;
+}
+
+/* Tables */
+th {
+    font-size: 10px;
+}
+
+td {
+    font-size: 12px;
+}
+
+td b {
+    font-size: 12px;
+}
+
+td small {
+    font-size: 10px;
+}
+
+/* Forms */
+.form-grid label,
+.form-stack label {
+    font-size: 12px;
+}
+
+.form-grid input,
+.form-grid select,
+.form-stack input,
+.form-stack select,
+.form-stack textarea {
+    font-size: 12px;
+}
+
+/* Page headings */
+.page-heading h1 {
+    font-size: 30px;
+}
+
+.page-heading p {
+    font-size: 14px;
+}
+
+/* Links and supporting text */
+.text-link {
+    font-size: 11px;
+}
+
+/* Keep the map and mobile layout working */
+.farm-map {
+    border: 1px solid #dcebe0;
+}
+
+@media (max-width: 760px) {
+    .sidebar {
+        background: #176b4b;
+    }
+
+    .sidebar nav .nav-link {
+        color: #ffffff;
+    }
+
+    .sidebar nav .nav-link.active {
+        background: #ffffff;
+        color: #176b4b;
+    }
+
+    .page-heading h1 {
+        font-size: 25px;
+    }
+}
+/* FARMGUARD LOGO ALIGNMENT */
+.sidebar .brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 32px);
+    min-height: 76px;
+    box-sizing: border-box;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 12px;
+    margin: 14px auto 24px;
+}
+
+.sidebar .brand-logo {
+    display: block;
+    width: 100%;
+    max-width: 190px;
+    max-height: 58px;
+    object-fit: contain;
+    object-position: center;
+    transform: translateX(15px);
+}
+
+/* FARMGUARD LOGO SIZE ADJUSTMENT */
+.brand {
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.brand-logo {
+    width: 100%;
+    max-width: 230px;
+    max-height: 70px;
+    object-fit: contain;
+}
+
+/* FORCE LARGER FARMGUARD LOGO */
+.sidebar .brand {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    overflow: visible !important;
+}
+
+.sidebar .brand .brand-logo {
+    width: 100% !important;
+    max-width: 260px !important;
+    max-height: 85px !important;
+    height: auto !important;
+    object-fit: contain !important;
+    transform: scale(1.15);
+}
+
+/* =========================================
+   FARMGUARD WORKER FIELD WORKSPACE
+   ========================================= */
+
+body.worker-theme {
+    background: #f1f7f2;
+}
+
+/* Horizontal navigation */
+.worker-nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    min-height: 76px;
+    padding: 12px 35px;
+    background: #ffffff;
+    border-bottom: 1px solid #dfeae2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 3px 15px rgba(24, 52, 38, .04);
+}
+
+.worker-nav-brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.worker-nav-brand img {
+    width: 190px;
+    max-height: 55px;
+    object-fit: contain;
+}
+
+.worker-nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.worker-nav-links a {
+    padding: 11px 13px;
+    border-radius: 8px;
+    color: #62756a;
+    font-size: 11px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.worker-nav-links a:hover,
+.worker-nav-links a.active {
+    background: #eaf5ee;
+    color: #176b4b;
+}
+
+.worker-nav-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.worker-nav-profile b,
+.worker-nav-profile small {
+    display: block;
+}
+
+.worker-nav-profile b {
+    font-size: 11px;
+}
+
+.worker-nav-profile small {
+    color: #84938a;
+    font-size: 9px;
+    margin-top: 3px;
+}
+
+.worker-logout {
+    color: #8b9990;
+    font-size: 17px;
+    padding: 7px;
+}
+
+/* Worker main layout */
+.worker-main {
+    margin-left: 0 !important;
+    min-height: calc(100vh - 76px);
+}
+
+.worker-main .topbar {
+    display: none;
+}
+
+.worker-main .content {
+    max-width: 1600px;
+    padding: 35px 42px 90px;
+}
+
+/* Floating quick action dock */
+.worker-action-dock {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #dce9df;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(24, 52, 38, .15);
+}
+
+.worker-action-dock a {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    background: #edf6ef;
+    color: #246b48;
+    font-size: 10px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.worker-action-dock a:hover {
+    background: #dcefe2;
+    transform: translateY(-2px);
+}
+
+.worker-action-dock a.primary-action {
+    background: #176b4b;
+    color: #ffffff;
+}
+
+/* Worker map workspace */
+.worker-map-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, .8fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.worker-map-layout .panel {
+    height: 100%;
+}
+
+.worker-map-layout .farm-map {
+    height: 470px;
+}
+
+.worker-field-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.worker-field-heading h1 {
+    font-size: 29px;
+    margin: 6px 0;
+}
+
+.worker-field-heading p {
+    color: #829087;
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Responsive Worker workspace */
+@media (max-width: 950px) {
+    .worker-nav {
+        flex-wrap: wrap;
+        padding: 13px 18px;
+    }
+
+    .worker-nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .worker-nav-links a {
+        white-space: nowrap;
+    }
+
+    .worker-main .content {
+        padding: 25px 20px 100px;
+    }
+
+    .worker-map-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .worker-map-layout .farm-map {
+        height: 380px;
+    }
+}
+
+@media (max-width: 600px) {
+    .worker-nav-brand img {
+        width: 145px;
+    }
+
+    .worker-nav {
+        gap: 10px;
+    }
+
+    .worker-nav-profile {
+        gap: 5px;
+    }
+
+    .worker-nav-profile > div:not(.avatar) {
+        display: none;
+    }
+
+    .worker-field-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .worker-action-dock {
+        right: 10px;
+        bottom: 10px;
+        left: 10px;
+        justify-content: center;
+    }
+
+    .worker-action-dock a {
+        flex: 1;
+        justify-content: center;
+        padding: 11px 7px;
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================
+   WORKER DASHBOARD - VISUAL POLISH
+   ========================================= */
+
+.worker-main .content {
+    max-width: 1700px;
+    padding: 38px 48px 110px;
+}
+
+/* Dashboard heading */
+.worker-field-heading {
+    margin-bottom: 30px;
+}
+
+.worker-field-heading h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: #183d2c;
+}
+
+.worker-field-heading p {
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Statistics cards */
+.worker-main .metric-grid {
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.worker-main .metric {
+    padding: 23px;
+    border: 1px solid #e3eee6;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(23, 70, 43, .045);
+    transition: transform .2s, box-shadow .2s;
+}
+
+.worker-main .metric:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 22px rgba(23, 70, 43, .09);
+}
+
+.worker-main .metric strong {
+    font-size: 30px;
+    color: #176b4b;
+}
+
+/* Workspace panels */
+.worker-map-layout {
+    gap: 22px;
+    margin-top: 8px;
+}
+
+.worker-main .panel {
+    border: 1px solid #e2ece5;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(23, 70, 43, .045);
+    padding: 24px;
+}
+
+.worker-main .panel-head {
+    margin-bottom: 20px;
+}
+
+.worker-main .panel-head h3 {
+    color: #214b35;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.worker-main .panel-head p {
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.worker-map-layout .farm-map {
+    height: 490px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.map-note {
+    color: #829087;
+    font-size: 11px;
+    margin-top: 12px;
+}
+
+/* Recent activity */
+.worker-main table th {
+    font-size: 11px;
+    letter-spacing: .5px;
+}
+
+.worker-main table td {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    font-size: 13px;
+}
+
+/* Small screen adjustments */
+@media (max-width: 950px) {
+    .worker-main .content {
+        padding: 25px 20px 105px;
+    }
+
+    .worker-main .metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .worker-map-layout .farm-map {
+        height: 400px;
+    }
+}
+
+@media (max-width: 600px) {
+    .worker-main .content {
+        padding: 22px 14px 105px;
+    }
+
+    .worker-main .metric-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .worker-field-heading h1 {
+        font-size: 26px;
+    }
+
+    .worker-main .panel {
+        padding: 17px;
+    }
+}

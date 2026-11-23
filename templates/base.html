@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -16,10 +15,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
+<body class="{% if active_user and active_user.role != 'Owner' %}worker-theme{% endif %}">
 
 {% if active_user %}
 
+{% if active_user.role == 'Owner' %}
 <aside class="sidebar">
 
     <!-- FARMGUARD LOGO -->
@@ -147,10 +147,53 @@
 
 </aside>
 
+{% else %}
+
+<nav class="worker-nav">
+
+    <a class="worker-nav-brand" href="{{ url_for('dashboard') }}">
+        <img src="{{ url_for('static', filename='images/farmguard-logo.png') }}"
+             alt="FarmGuard">
+    </a>
+
+    <div class="worker-nav-links">
+        <a class="{{ 'active' if request.endpoint == 'dashboard' else '' }}"
+           href="{{ url_for('dashboard') }}">Overview</a>
+
+        <a class="{{ 'active' if request.endpoint == 'observations' else '' }}"
+           href="{{ url_for('observations') }}">Observations</a>
+
+        <a class="{{ 'active' if request.endpoint == 'queue' else '' }}"
+           href="{{ url_for('queue') }}">Inspection Queue</a>
+
+        <a class="{{ 'active' if request.endpoint in ['history', 'history_csv'] else '' }}"
+           href="{{ url_for('history') }}">History</a>
+
+        <a class="{{ 'active' if request.endpoint == 'locations' else '' }}"
+           href="{{ url_for('locations') }}">Plot Locations</a>
+    </div>
+
+    <div class="worker-nav-profile">
+        <div class="avatar">
+            {{ active_user.name[:1] | upper }}
+        </div>
+        <div>
+            <b>{{ active_user.name }}</b>
+            <small>Field Worker</small>
+        </div>
+        <a class="worker-logout" href="{{ url_for('logout') }}"
+           title="Sign out">↗</a>
+    </div>
+
+</nav>
+
+{% endif %}
+
 <!-- MAIN CONTENT -->
-<main class="main">
+<main class="main {% if active_user.role != 'Owner' %}worker-main{% endif %}">
 
     <!-- TOPBAR -->
+     {% if active_user.role == 'Owner' %}
     <header class="topbar">
 
         <div class="crumb">
@@ -176,6 +219,7 @@
         </div>
 
     </header>
+    {% endif %}
 
     <!-- PAGE CONTENT -->
     <section class="content">
@@ -209,6 +253,25 @@
     </section>
 
 </main>
+
+{% if active_user and active_user.role != 'Owner' %}
+<nav class="worker-action-dock">
+
+    <a href="{{ url_for('queue') }}">
+        ◷ Inspection Queue
+    </a>
+
+    <a href="{{ url_for('locations') }}">
+        ⌖ Plot Map
+    </a>
+
+    <a class="primary-action" href="{{ url_for('observations') }}">
+        + New Observation
+    </a>
+
+</nav>
+
+{% endif %}
 
 {% else %}
 

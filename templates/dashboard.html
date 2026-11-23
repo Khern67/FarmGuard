@@ -1,1 +1,402 @@
-{% extends 'base.html' %}{% block title %}Overview{% endblock %}{% block crumb %}Overview{% endblock %}{% block content %}<div class="page-heading"><div><span class="eyebrow green">FARM OVERVIEW</span><h1>Good day, {{ active_user.name.split(' ')[0] }} <span class="wave">✳</span></h1><p>Here’s what’s happening across your farm today.</p></div><a class="btn primary" href="{{ url_for('observations') }}">＋ New observation</a></div><div class="metric-grid"><div class="metric"><div class="metric-top"><span>Registered crops</span><span class="metric-icon green-bg">♧</span></div><strong>{{ crops|length }}</strong><small>Across all farm sections</small></div><div class="metric"><div class="metric-top"><span>Pending inspections</span><span class="metric-icon amber-bg">◷</span></div><strong>{{ pending_count }}</strong><small>Awaiting field verification</small></div><div class="metric"><div class="metric-top"><span>High / critical reports</span><span class="metric-icon red-bg">⚑</span></div><strong>{{ critical_count }}</strong><small>Reports needing attention</small></div><div class="metric"><div class="metric-top"><span>Average urgency</span><span class="metric-icon blue-bg">↗</span></div><strong>{{ avg }}<small class="unit">/100</small></strong><small>Across submitted observations</small></div></div><div class="dashboard-grid"><section class="panel"><div class="panel-head"><div><h3>Crop portfolio</h3><p>Distribution by crop category</p></div><a href="{{ url_for('crops_page') }}" class="text-link">View records →</a></div><div class="chart-area"><canvas id="cropChart"></canvas><div class="chart-legend" id="cropLegend"></div></div></section><section class="panel"><div class="panel-head"><div><h3>Severity distribution</h3><p>Reported crop conditions</p></div><a href="{{ url_for('history') }}" class="text-link">View reports →</a></div><div class="severity-chart"><canvas id="severityChart"></canvas></div><div class="severity-key"><span><i class="dot low"></i>Low <b>{{ severity_counts.Low }}</b></span><span><i class="dot moderate"></i>Moderate <b>{{ severity_counts.Moderate }}</b></span><span><i class="dot high"></i>High <b>{{ severity_counts.High }}</b></span><span><i class="dot critical"></i>Critical <b>{{ severity_counts.Critical }}</b></span></div></section></div><div class="dashboard-grid lower-grid"><section class="panel"><div class="panel-head"><div><h3>Inspection priorities</h3><p>Highest urgency first · Max Heap</p></div><a href="{{ url_for('queue') }}" class="text-link">Open queue →</a></div>{% if priorities %}<div class="priority-list">{% for item in priorities %}<div class="priority-row"><div class="rank">{{ '%02d'|format(loop.index) }}</div><div class="priority-info"><b>{{ item.crop_name }} <span>· {{ item.section or 'Unassigned' }}</span></b><small>{{ item.report_date }} · <span class="sev-text {{ item.severity|lower }}">{{ item.severity }}</span></small><div class="progress"><i style="width:{{ [item.urgency_score|float,100]|min }}%"></i></div></div><strong>{{ '%.1f'|format(item.urgency_score|float) }}<small>/100</small></strong></div>{% endfor %}</div>{% else %}<div class="empty-state"> <span>✓</span><b>No pending inspections</b><p>New observations will appear here.</p></div>{% endif %}</section><section class="panel"><div class="panel-head"><div><h3>Recent observations</h3><p>Latest field activity</p></div><a href="{{ url_for('history') }}" class="text-link">See all →</a></div>{% if reports %}<div class="table-wrap"><table><thead><tr><th>CROP / PLOT</th><th>SEVERITY</th><th>STATUS</th></tr></thead><tbody>{% for r in reports %}<tr><td><b>{{ r.crop_name }}</b><small>{{ r.section }} · {{ r.report_date }}</small></td><td><span class="badge {{ r.severity|lower }}">{{ r.severity }}</span></td><td><span class="status {{ r.status|lower }}">{{ r.status }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state">No observations recorded yet.</div>{% endif %}</section></div><script>window.farmguardCharts={cropLabels:{{ crop_counts.keys()|list|tojson }},cropValues:{{ crop_counts.values()|list|tojson }},severityLabels:{{ severity_counts.keys()|list|tojson }},severityValues:{{ severity_counts.values()|list|tojson }}};</script>{% endblock %}
+
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block crumb %}Dashboard{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+{% if user_role == 'Owner' %}
+
+<!-- OWNER DASHBOARD -->
+<div class="page-heading">
+    <div>
+        <span class="eyebrow green">FARM MANAGEMENT</span>
+        <h1>Welcome back, {{ active_user.name.split(' ')[0] }}!</h1>
+        <p>Monitor your farm performance and manage crop health.</p>
+    </div>
+    <a class="btn primary" href="{{ url_for('users_page') }}">User management</a>
+</div>
+
+<div class="metric-grid">
+    <div class="metric">
+        <div class="metric-top"><span>Registered farms</span></div>
+        <strong>{{ farms|length }}</strong>
+        <small>Total farm locations</small>
+    </div>
+    <div class="metric">
+        <div class="metric-top"><span>Registered crops</span></div>
+        <strong>{{ crops|length }}</strong>
+        <small>Across all farm sections</small>
+    </div>
+    <div class="metric">
+        <div class="metric-top"><span>Pending inspections</span></div>
+        <strong>{{ pending_count }}</strong>
+        <small>Awaiting verification</small>
+    </div>
+    <div class="metric">
+        <div class="metric-top"><span>High / critical reports</span></div>
+        <strong>{{ critical_count }}</strong>
+        <small>Reports needing attention</small>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>Crop portfolio</h3>
+                <p>Distribution by crop category</p>
+            </div>
+            <a href="{{ url_for('crops_page') }}" class="text-link">View records →</a>
+        </div>
+        <div class="chart-area">
+            <canvas id="cropChart"></canvas>
+            <div class="chart-legend" id="cropLegend"></div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>Crop severity analytics</h3>
+                <p>Overview of reported crop conditions</p>
+            </div>
+            <a href="{{ url_for('history') }}" class="text-link">View reports →</a>
+        </div>
+        <div class="severity-chart">
+            <canvas id="severityChart"></canvas>
+        </div>
+        <div class="severity-key">
+            {% for severity in ['Low','Moderate','High','Critical'] %}
+            <span>
+                <i class="dot {{ severity|lower }}"></i>
+                {{ severity }}
+                <b>{{ severity_counts[severity] }}</b>
+            </span>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<div class="dashboard-grid lower-grid">
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>Inspection priorities</h3>
+                <p>Highest urgency first · Max Heap</p>
+            </div>
+            <a href="{{ url_for('queue') }}" class="text-link">Open queue →</a>
+        </div>
+
+        {% if priorities %}
+        <div class="priority-list">
+            {% for item in priorities %}
+            <div class="priority-row">
+                <div class="rank">{{ '%02d'|format(loop.index) }}</div>
+                <div class="priority-info">
+                    <b>{{ item.crop_name }}</b>
+                    <small>{{ item.section or 'Unassigned' }} · {{ item.report_date }}</small>
+                    <div class="progress">
+                        <i style="width:{{ [item.urgency_score|float,100]|min }}%"></i>
+                    </div>
+                </div>
+                <strong>{{ '%.1f'|format(item.urgency_score|float) }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">No pending inspections.</div>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <h3>Recent farm activity</h3>
+                <p>Latest submitted observations</p>
+            </div>
+            <a href="{{ url_for('history') }}" class="text-link">See all →</a>
+        </div>
+
+        {% if reports %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CROP / PLOT</th>
+                        <th>SEVERITY</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reports %}
+                    <tr>
+                        <td>
+                            <b>{{ r.crop_name }}</b>
+                            <small>{{ r.section }} · {{ r.report_date }}</small>
+                        </td>
+                        <td><span class="badge {{ r.severity|lower }}">{{ r.severity }}</span></td>
+                        <td><span class="status {{ r.status|lower }}">{{ r.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">No observations recorded yet.</div>
+        {% endif %}
+    </section>
+</div>
+
+
+{% else %}
+
+<!-- WORKER FIELD WORKSPACE -->
+
+<div class="worker-field-heading">
+    <div>
+        <span class="eyebrow green">FIELD OPERATIONS WORKSPACE</span>
+        <h1>Welcome back, {{ active_user.name.split(' ')[0] }}!</h1>
+        <p>Monitor your farm plots, review crop conditions, and manage field observations.</p>
+    </div>
+
+    <a class="btn primary" href="{{ url_for('observations') }}">
+        ＋ New observation
+    </a>
+</div>
+
+<!-- FIELD STATISTICS -->
+<div class="metric-grid">
+    <div class="metric">
+        <div class="metric-top"><span>Crop records</span></div>
+        <strong>{{ crops|length }}</strong>
+        <small>Available crop records</small>
+    </div>
+
+    <div class="metric">
+        <div class="metric-top"><span>Pending inspections</span></div>
+        <strong>{{ pending_count }}</strong>
+        <small>Awaiting field verification</small>
+    </div>
+
+    <div class="metric">
+        <div class="metric-top"><span>High / critical reports</span></div>
+        <strong>{{ critical_count }}</strong>
+        <small>Reports needing attention</small>
+    </div>
+
+    <div class="metric">
+        <div class="metric-top"><span>Average urgency</span></div>
+        <strong>{{ avg }}<small class="unit">/100</small></strong>
+        <small>Submitted observations</small>
+    </div>
+</div>
+
+<!-- MAP-CENTERED FIELD WORKSPACE -->
+<div class="worker-map-layout">
+
+    <!-- MAP PANEL -->
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <span class="eyebrow green">FARM OVERVIEW</span>
+                <h3>Interactive Plot Map</h3>
+                <p>View saved crop locations and their farm sections.</p>
+            </div>
+
+            <a href="{{ url_for('locations') }}" class="text-link">
+                Full map →
+            </a>
+        </div>
+
+        {% if located %}
+        <div id="dashboardFarmMap" class="farm-map"></div>
+        <p class="map-note">Select a map marker to view its crop and plot information.</p>
+        {% else %}
+        <div class="empty-state">
+            No plot coordinates are available yet.
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- INSPECTION PRIORITIES -->
+    <section class="panel">
+        <div class="panel-head">
+            <div>
+                <span class="eyebrow green">ATTENTION REQUIRED</span>
+                <h3>Inspection Priorities</h3>
+                <p>Reports ranked by urgency.</p>
+            </div>
+            <a href="{{ url_for('queue') }}" class="text-link">View all →</a>
+        </div>
+
+        {% if priorities %}
+        <div class="priority-list">
+            {% for item in priorities %}
+            <div class="priority-row">
+                <div class="rank">{{ '%02d'|format(loop.index) }}</div>
+
+                <div class="priority-info">
+                    <b>{{ item.crop_name }}</b>
+                    <small>{{ item.section or 'Unassigned' }} · {{ item.report_date }}</small>
+
+                    <div class="progress">
+                        <i style="width:{{ [item.urgency_score|float,100]|min }}%"></i>
+                    </div>
+                </div>
+
+                <strong>{{ '%.1f'|format(item.urgency_score|float) }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">No pending inspections.</div>
+        {% endif %}
+    </section>
+
+</div>
+
+<!-- RECENT FIELD ACTIVITY -->
+<section class="panel" style="margin-top:20px;">
+    <div class="panel-head">
+        <div>
+            <span class="eyebrow green">FIELD REPORTS</span>
+            <h3>Recent Field Activity</h3>
+            <p>Latest submitted crop observations.</p>
+        </div>
+
+        <a href="{{ url_for('history') }}" class="text-link">
+            View history →
+        </a>
+    </div>
+
+    {% if reports %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>CROP / PLOT</th>
+                    <th>SEVERITY</th>
+                    <th>STATUS</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for r in reports %}
+                <tr>
+                    <td>
+                        <b>{{ r.crop_name }}</b>
+                        <small>{{ r.section }} · {{ r.report_date }}</small>
+                    </td>
+
+                    <td>
+                        <span class="badge {{ r.severity|lower }}">
+                            {{ r.severity }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="status {{ r.status|lower }}">
+                            {{ r.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">No observations recorded yet.</div>
+    {% endif %}
+</section>
+
+{% endif %}
+
+{% if user_role == 'Owner' %}
+<!-- OWNER INTERACTIVE PLOT MAP -->
+<section class="panel map-panel" style="margin-top:24px;">
+    <div class="panel-head">
+        <div>
+            <h3>Farm plot locations</h3>
+            <p>Interactive map of crop plots with saved coordinates.</p>
+        </div>
+        <a href="{{ url_for('locations') }}" class="text-link">Full plot map →</a>
+    </div>
+
+    {% if located %}
+    <div id="dashboardFarmMap" class="farm-map"></div>
+    {% else %}
+    <div class="empty-state">
+        No plot coordinates have been added yet.
+        <p>Visit Plot Locations to view the coordinate registry.</p>
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+
+<script>
+window.farmguardCharts = {
+    cropLabels: {{ crop_counts.keys()|list|tojson }},
+    cropValues: {{ crop_counts.values()|list|tojson }},
+    severityLabels: {{ severity_counts.keys()|list|tojson }},
+    severityValues: {{ severity_counts.values()|list|tojson }}
+};
+</script>
+
+{% if located %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const points = {{ located|map(attribute='latitude')|list|tojson }}.map((lat, i) => ({
+        lat: lat,
+        lng: {{ located|map(attribute='longitude')|list|tojson }}[i],
+        name: {{ located|map(attribute='crop_name')|list|tojson }}[i],
+        section: {{ located|map(attribute='section')|list|tojson }}[i],
+        farm: {{ located|map(attribute='farm_name')|list|tojson }}[i]
+    }));
+
+    const mapElement = document.getElementById('dashboardFarmMap');
+    if (!mapElement || typeof L === 'undefined') return;
+
+    const map = L.map('dashboardFarmMap');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const bounds = [];
+
+    points.forEach(p => {
+        L.marker([p.lat, p.lng])
+            .addTo(map)
+            .bindPopup(
+                '<b>' + escapeHtml(p.name) + '</b><br>' +
+                escapeHtml(p.section || 'Unassigned section') + '<br>' +
+                escapeHtml(p.farm || '')
+            );
+
+        bounds.push([p.lat, p.lng]);
+    });
+
+    if (bounds.length === 1) {
+        map.setView(bounds[0], 15);
+    } else if (bounds.length > 1) {
+        map.fitBounds(bounds, { padding: [30, 30] });
+    }
+
+    function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[c]));
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

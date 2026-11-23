@@ -278,6 +278,7 @@ def login_required(fn):
 @login_required
 def dashboard():
     farms=rows('SELECT * FROM farms ORDER BY id'); crops,_=get_crops(); reports=get_reports()
+    located = [c for c in crops if c['latitude'] is not None and c['longitude'] is not None]
     pending=[r for r in reports if r['status']=='Pending']
     critical=sum(1 for r in reports if r['severity'] in ('High','Critical'))
     avg=round(sum(float(r['urgency_score'] or 0) for r in reports)/len(reports),1) if reports else 0
@@ -287,7 +288,20 @@ def dashboard():
     crop_counts={}
     for c in crops: crop_counts[c['crop_type']]=crop_counts.get(c['crop_type'],0)+1
     severity_counts={s:sum(1 for r in reports if r['severity']==s) for s in ['Low','Moderate','High','Critical']}
-    return render_template('dashboard.html',farms=farms,crops=crops,reports=reports[:6],pending_count=len(pending),critical_count=critical,avg=avg,priorities=priorities,crop_counts=crop_counts,severity_counts=severity_counts)
+    return render_template(
+    'dashboard.html',
+    farms=farms,
+    crops=crops,
+    located=located,
+    reports=reports[:6],
+    pending_count=len(pending),
+    critical_count=critical,
+    avg=avg,
+    priorities=priorities,
+    crop_counts=crop_counts,
+    severity_counts=severity_counts,
+    user_role=current_user().get('role')
+)
 
 @app.route('/crops', methods=['GET','POST'])
 @login_required
